@@ -7,63 +7,96 @@ def scrape():
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     all_jobs = soup.find_all('h2')
-    companyName = soup.find_all('h3', class_ = 'subtitle is-6 company')
-    location = soup.find_all('p', class_ = 'location')
-    applyBtn = soup.find_all('a', class_ = 'card-footer-item')
+    companyName = soup.find_all('h3', class_='subtitle is-6 company')
+    location = soup.find_all('p', class_='location')
+    applyBtn = soup.find_all('a', class_='card-footer-item')
     return all_jobs, location, applyBtn, companyName
 
 
+def divider():
+    print("\n" + "=" * 50)
+
+
+def header(title):
+    divider()
+    print(f"  {title}")
+    divider()
+
+
 def jobsFun(all_jobs):
+    header("OPEN POSITIONS")
     for i, job in enumerate(all_jobs, start=1):
-        print(f"{i}. {job.get_text()}")
+        print(f"  {i}. {job.get_text()}")
+    divider()
+
 
 def companies(companyName):
+    header("COMPANIES HIRING")
     for j, comp in enumerate(companyName, start=1):
-        print(f"{j}) {comp.get_text().strip()}")
+        print(f"  {j}. {comp.get_text().strip()}")
+    divider()
+
 
 def locationFun(location):
-    for spot in location:
-        print(spot.get_text().strip())
+    header("JOB LOCATIONS")
+    for i, spot in enumerate(location, start=1):
+        print(f"  {i}. {spot.get_text().strip()}")
+    divider()
 
-def display(all_jobs, location):
-    for i, (job, spot) in enumerate(zip(all_jobs, location), start=1):
-        print(f"{i}. {job.get_text()} in {spot.get_text().strip()}")
 
 def displayAll(all_jobs, location, companyName):
+    header("ALL JOB LISTINGS")
     for i, (job, spot, comp) in enumerate(zip(all_jobs, location, companyName), start=1):
-        print(f"{i}. {job.get_text()} in {spot.get_text().strip()} by {comp.get_text()}")
+        print(f"  [{i}] {job.get_text()}")
+        print(f"       Company  : {comp.get_text().strip()}")
+        print(f"       Location : {spot.get_text().strip()}")
+        print()
+    divider()
+
 
 def jobApp(applyBtn):
-    userApply = int(input("What is the # of the job you'd like to apply for: "))
-    userApply -= 0
-    applyIndex = (userApply * 2) - 1
-    print(applyBtn[applyIndex].get('href'))
+    try:
+        userApply = int(input("  Enter job # to apply --> "))
+        applyIndex = (userApply * 2) - 1
+        link = applyBtn[applyIndex].get('href')
+        divider()
+        print(f"\n  Apply here: {link}\n")
+        divider()
+    except (ValueError, IndexError):
+        print("\n  Invalid selection. Please try again.")
+
+
+def menu():
+    print("\n" + "=" * 50)
+    print("           JOB SEARCH CONSOLE")
+    print("=" * 50)
+    print("  1. Browse & Apply to Jobs")
+    print("  2. View Locations")
+    print("  3. View Open Positions")
+    print("  4. View Companies")
+    print("  5. Quit")
+    print("=" * 50)
 
 
 if __name__ == '__main__':
     all_jobs, location, applyBtn, companyName = scrape()
+    print("\n  Loading jobs...")
+
     while True:
-        choice = input("\n --------------------------- "
-                       "\n What would you like to do?"
-                       "\n 1) Apply to jobs"
-                       "\n 2) Locations we offer"
-                       "\n 3) Open Positions"
-                       "\n 4) Companies"
-                       "\n 5) Quit"
-                       "\n Enter # to select  ----> "
-                       "\n --------------------------- ")
+        menu()
+        choice = input("\n  Enter your choice --> ").strip()
 
         if choice == "5":
+            print("\n  Goodbye!\n")
             break
         elif choice == "3":
             jobsFun(all_jobs)
-        elif choice == '2':
+        elif choice == "2":
             locationFun(location)
-        elif choice == '1':
+        elif choice == "1":
             displayAll(all_jobs, location, companyName)
             jobApp(applyBtn)
-        elif choice == '4':
+        elif choice == "4":
             companies(companyName)
         else:
-            print("Please enter a valid choice")
-
+            print("\n  Invalid choice. Please enter 1-5.")
